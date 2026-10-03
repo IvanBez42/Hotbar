@@ -109,8 +109,17 @@ class Game(Gio.SimpleActionGroup):
 
 def format_executable(executable: str) -> str:
     """Get the correct executable for the user's environment."""
-    return (
-        f"flatpak-spawn --host /bin/sh -c {quote(executable)}"
-        if Path("/.flatpak-info").exists()
-        else executable
+    if not Path("/.flatpak-info").exists():
+        return executable
+
+    # flatpak-session-helper's sometime lack display variables
+    env_args = []
+    for var in ("WAYLAND_DISPLAY", "XDG_SESSION_TYPE", "DISPLAY"):
+        value = os.environ.get(var)
+        if not value or (var == "DISPLAY" and value == ":99"):
+            continue
+        env_args.append(quote(f"--env={var}={value}"))
+
+    return " ".join(
+        ("flatpak-spawn", "--host", *env_args, "/bin/sh", "-c", quote(executable))
     )
