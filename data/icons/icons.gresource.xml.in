@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gresources>
+  <gresource prefix="@PREFIX@/icons/scalable/actions">
+    <file>apply-symbolic.svg</file>
+    <file>cancel-symbolic.svg</file>
+    <file>filter-symbolic.svg</file>
+    <!-- Sources -->
+    <file>desktop-symbolic.svg</file>
+    <file>heroic-symbolic.svg</file>
+    <file>imported-symbolic.svg</file>
+    <file>itch-symbolic.svg</file>
+    <file>legendary-symbolic.svg</file>
+    <file>lutris-symbolic.svg</file>
+    <file>steam-symbolic.svg</file>
+    <!-- Collections -->
+    <file>collection-symbolic.svg</file>
+    <file>ball-symbolic.svg</file>
+    <file>car-symbolic.svg</file>
+    <file>city-symbolic.svg</file>
+    <file>fist-symbolic.svg</file>
+    <file>flashlight-symbolic.svg</file>
+    <file>gamepad-symbolic.svg</file>
+    <file>globe-symbolic.svg</file>
+    <file>gun-symbolic.svg</file>
+    <file>heart-symbolic.svg</file>
+    <file>horse-symbolic.svg</file>
+    <file>knife-symbolic.svg</file>
+    <file>map-symbolic.svg</file>
+    <file>music-symbolic.svg</file>
+    <file>people-symbolic.svg</file>
+    <file>private-symbolic.svg</file>
+    <file>puzzle-symbolic.svg</file>
+    <file>skull-symbolic.svg</file>
+    <file>sprout-symbolic.svg</file>
+    <file>star-symbolic.svg</file>
+    <file>step-over-symbolic.svg</file>
+  </gresource>
+</gresources>

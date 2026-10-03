@@ -1,0 +1,116 @@
+using Gtk 4.0;
+
+$GameActions game_actions {
+  game: bind template.game;
+}
+
+$CollectionActions collection_actions {
+  game: bind template.game;
+}
+
+template $GameItem: Box {
+  name: "game-item";
+  orientation: vertical;
+  spacing: 12;
+
+  EventControllerMotion motion {
+    notify::contains-pointer => $_reveal_buttons();
+  }
+
+  Overlay {
+    halign: center;
+
+    child: $Cover cover {
+      paintable: bind template.game as <$Game>.cover;
+    };
+
+    [overlay]
+    MenuButton options {
+      icon-name: "view-more-symbolic";
+      tooltip-text: _("Options");
+      halign: end;
+      valign: start;
+      margin-top: 6;
+      margin-end: 6;
+      notify::active => $_reveal_buttons();
+      notify::active => $_setup_collections();
+
+      popover: PopoverMenu {
+        menu-model: menu {
+          section {
+            item (_("Edit"), "game.edit")
+
+            item {
+              label: _("Hide");
+              action: "game.hide";
+              hidden-when: "action-disabled";
+            }
+
+            item {
+              label: _("Unhide");
+              action: "game.unhide";
+              hidden-when: "action-disabled";
+            }
+
+            item (_("Remove"), "game.remove")
+          }
+
+          section {
+            item (_("New Collection"), "collection.add")
+
+            item {
+              custom: "collections";
+            }
+          }
+        };
+
+        [collections]
+        Box {
+          orientation: vertical;
+          visible: bind collections_box.visible;
+
+          Separator {}
+
+          Label {
+            label: _("Collections");
+            halign: start;
+            margin-top: 6;
+            margin-bottom: 9;
+            margin-start: 12;
+            margin-end: 12;
+
+            styles [
+              "heading",
+            ]
+          }
+
+          $CollectionsBox collections_box {
+            game: bind template.game;
+          }
+        }
+      };
+
+      styles [
+        "circular",
+      ]
+    }
+
+    [overlay]
+    Button play {
+      action-name: "game.play";
+      label: _("Play");
+      halign: center;
+      valign: end;
+      margin-bottom: 12;
+
+      styles [
+        "pill",
+      ]
+    }
+  }
+
+  Label {
+    label: bind template.game as <$Game>.name;
+    ellipsize: middle;
+  }
+}
