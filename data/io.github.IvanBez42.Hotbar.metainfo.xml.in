@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@APP_ID@</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>Hotbar</name>
+  <summary>Launch all your games</summary>
+  <description>
+    <p>Hotbar is a simple game launcher for all of your games.</p>
+    <p>Hotbar is a fork of Cartridges by kramo.</p>
+  </description>
+
+  <developer id="io.github.IvanBez42">
+    <name translate="no">Ivan</name>
+  </developer>
+
+  <url type="homepage">https://github.com/IvanBez42/Hotbar</url>
+  <url type="vcs-browser">https://github.com/IvanBez42/Hotbar</url>
+  <url type="bugtracker">https://github.com/IvanBez42/Hotbar/issues</url>
+
+  <translation type="gettext">hotbar</translation>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
+  <content_rating type="oars-1.1" />
+
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#d5b0e7</color>
+    <color type="primary" scheme_preference="dark">#501a5c</color>
+  </branding>
+
+  <releases>
+    <release version="0.1.0" date="2026-10-03"/>
+  </releases>
+
+</component>

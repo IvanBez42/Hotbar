@@ -1,5 +1,0 @@
-#!@PYTHON@
-
-import runpy
-
-runpy.run_module("cartridges")
