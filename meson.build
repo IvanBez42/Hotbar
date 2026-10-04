@@ -1,6 +1,6 @@
 project(
-    'cartridges',
-    version: '49.0',
+    'hotbar',
+    version: '0.1.0',
     meson_version: '>= 1.1.0',
     default_options: ['warning_level=2', 'werror=false'],
 )
@@ -24,15 +24,15 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 
 localedir = get_option('prefix') / get_option('localedir')
 bindir = get_option('prefix') / get_option('bindir')
-resourcedir = python.get_install_dir() / 'cartridges' / 'resources'
+resourcedir = python.get_install_dir() / 'hotbar' / 'resources'
 
 profile = get_option('profile')
 if profile == 'development'
-    app_id = 'page.kramo.Cartridges.Devel'
-    prefix = '/page/kramo/Cartridges/Devel'
+    app_id = 'io.github.IvanBez42.Hotbar.Devel'
+    prefix = '/io/github/IvanBez42/Hotbar/Devel'
 elif profile == 'release'
-    app_id = 'page.kramo.Cartridges'
-    prefix = '/page/kramo/Cartridges'
+    app_id = 'io.github.IvanBez42.Hotbar'
+    prefix = '/io/github/IvanBez42/Hotbar'
 endif
 
 conf = configuration_data(
@@ -47,7 +47,7 @@ conf = configuration_data(
 )
 
 subdir('data')
-subdir('cartridges')
+subdir('hotbar')
 subdir('po')
 
 gnome.post_install(

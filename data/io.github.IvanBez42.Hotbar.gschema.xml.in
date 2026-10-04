@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schemalist gettext-domain="hotbar">
+  <schema id="@APP_ID@" path="@PREFIX@/">
+    <key name="collections" type="aa{sv}">
+      <default>[]</default>
+    </key>
+  </schema>
+  <schema id="@APP_ID@.State" path="@PREFIX@/State/">
+    <key name="width" type="i">
+      <default>920</default>
+    </key>
+    <key name="height" type="i">
+      <default>700</default>
+    </key>
+    <key name="is-maximized" type="b">
+      <default>false</default>
+    </key>
+    <key name="sort-mode" type="s">
+      <choices>
+        <choice value="last_played" />
+        <choice value="a-z" />
+        <choice value="z-a" />
+        <choice value="newest" />
+        <choice value="oldest" />
+      </choices>
+      <default>"last_played"</default>
+    </key>
+    <key name="show-sidebar" type="b">
+      <default>false</default>
+    </key>
+  </schema>
+</schemalist>

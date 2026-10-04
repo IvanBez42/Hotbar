@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Hotbar
+GenericName=Game Launcher
+Comment=Launch all your games
+Exec=hotbar
+Icon=@APP_ID@
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Game;PackageManager;
+# Translators: Leave "hotbar" untranslated here.
+Keywords=gaming;games;play;hotbar;launch;launcher;steam;lutris;heroic;epic;bottles;itch;legendary;retroarch;
+StartupNotify=true
+DBusActivatable=true

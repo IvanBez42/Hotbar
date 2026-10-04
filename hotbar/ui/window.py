@@ -1,0 +1,224 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: Copyright 2025 Zoey Ahmed
+# SPDX-FileCopyrightText: Copyright 2022-2026 kramo
+# SPDX-FileCopyrightText: Copyright 2025 Jamie Gravendeel
+
+import sys
+from collections.abc import Callable
+from gettext import gettext as _
+from typing import Any, cast
+
+from gi.repository import Adw, Gio, GLib, GObject, Gtk
+
+from hotbar import STATE_SETTINGS
+from hotbar.collections import Collection
+from hotbar.config import PREFIX, PROFILE
+from hotbar.games import Game
+
+from . import closures, collections, games, sources
+from .collections import CollectionActions, CollectionSidebarItem
+from .game_details import GameDetails
+from .game_item import GameItem  # noqa: F401
+from .games import GameActions
+from .sources import SourceSidebarItem
+
+if sys.platform.startswith("linux"):
+    from hotbar import gamepads
+    from hotbar.gamepads import Gamepad
+
+GObject.type_ensure(GObject.SignalGroup)
+
+type _UndoFunc = Callable[[], Any]
+
+
+@Gtk.Template(resource_path=f"{PREFIX}/window.ui")
+@closures.add(closures.format_, closures.if_, closures.shortcut)
+class Window(Adw.ApplicationWindow):
+    """The main window."""
+
+    __gtype_name__ = __qualname__
+
+    split_view: Adw.OverlaySplitView = Gtk.Template.Child()
+    sidebar: Adw.Sidebar = Gtk.Template.Child()
+    sources: Adw.SidebarSection = Gtk.Template.Child()
+    collections: Adw.SidebarSection = Gtk.Template.Child()
+    new_collection_item: Adw.SidebarItem = Gtk.Template.Child()
+    navigation_view: Adw.NavigationView = Gtk.Template.Child()
+    header_bar: Adw.HeaderBar = Gtk.Template.Child()
+    title_box: Gtk.CenterBox = Gtk.Template.Child()
+    search_entry: Gtk.SearchEntry = Gtk.Template.Child()
+    sort_button: Gtk.MenuButton = Gtk.Template.Child()
+    main_menu_button: Gtk.MenuButton = Gtk.Template.Child()
+    toast_overlay: Adw.ToastOverlay = Gtk.Template.Child()
+    view_stack: Adw.ViewStack = Gtk.Template.Child()
+    grid: Gtk.GridView = Gtk.Template.Child()
+    details: GameDetails = Gtk.Template.Child()
+
+    game_actions: GameActions = Gtk.Template.Child()
+    menu_collection_actions: CollectionActions = Gtk.Template.Child()
+    collection_signals: GObject.SignalGroup = Gtk.Template.Child()
+    model_signals: GObject.SignalGroup = Gtk.Template.Child()
+
+    menu_collection = GObject.Property(type=Collection)
+    collection = GObject.Property(type=Collection)
+    model = GObject.Property(type=Gio.ListModel)
+
+    search_text = GObject.Property(type=str)
+    show_hidden = GObject.Property(type=bool, default=False)
+
+    settings = GObject.Property(type=Gtk.Settings)
+
+    _selected_sidebar_item = 0
+
+    def __init__(self, **kwargs: Any):
+        super().__init__(**kwargs)
+
+        if PROFILE == "development":
+            self.add_css_class("devel")
+
+        self.settings = self.get_settings()
+
+        flags = Gio.SettingsBindFlags.DEFAULT
+        STATE_SETTINGS.bind("width", self, "default-width", flags)
+        STATE_SETTINGS.bind("height", self, "default-height", flags)
+        STATE_SETTINGS.bind("is-maximized", self, "maximized", flags)
+        STATE_SETTINGS.bind("show-sidebar", self.split_view, "show-sidebar", flags)
+
+        self.sources.bind_model(sources.model, SourceSidebarItem)
+        self.collections.bind_model(collections.model, CollectionSidebarItem)
+
+        self.add_action(STATE_SETTINGS.create_action("show-sidebar"))
+        self.add_action(STATE_SETTINGS.create_action("sort-mode"))
+        self.add_action(
+            Gio.PropertyAction(
+                name="show-hidden",
+                object=self,
+                property_name="show-hidden",
+            )
+        )
+        self.add_action_entries((
+            ("search", lambda *_: self.search_entry.grab_focus()),
+            ("undo", lambda *_: self._undo()),
+        ))
+
+        self.insert_action_group("game", self.game_actions)
+        self.insert_action_group("collection", self.menu_collection_actions)
+        self.collection_signals.connect_closure(
+            "notify::removed",
+            lambda *_: self._collection_removed(),
+            after=False,
+        )
+        self.model_signals.connect_closure(
+            "items-changed",
+            lambda model, *_: None if model else self._model_emptied(),
+            after=False,
+        )
+        self.model = games.model
+
+        self._history: dict[Adw.Toast, _UndoFunc] = {}
+
+    def send_toast(self, title: str, *, undo: _UndoFunc | None = None):
+        """Notify the user with a toast.
+
+        Optionally display a button allowing the user to `undo` an operation.
+        """
+        toast = Adw.Toast(title=title, use_markup=False)
+        if undo:
+            toast.props.button_label = _("Undo")
+            toast.props.priority = Adw.ToastPriority.HIGH
+            toast.connect("button-clicked", self._undo)
+            self._history[toast] = undo
+
+        self.toast_overlay.add_toast(toast)
+
+    def _collection_removed(self):
+        self.collection = None
+        self.sidebar.props.selected = 0
+
+    def _model_emptied(self):
+        self.model = games.model
+        self.sidebar.props.selected = 0
+
+    @Gtk.Template.Callback()
+    @staticmethod
+    def _show_sidebar_title(_this, layout: str) -> bool:
+        right_window_controls = layout.replace("appmenu", "").startswith(":")
+        return right_window_controls and not sys.platform.startswith("darwin")
+
+    @Gtk.Template.Callback()
+    def _navigate(self, sidebar: Adw.Sidebar, index: int):
+        item = sidebar.get_item(index)
+
+        match item:
+            case self.new_collection_item:
+                collections.add()
+                sidebar.props.selected = self._selected_sidebar_item
+            case SourceSidebarItem():
+                self.collection = None
+                self.model = item.model
+            case CollectionSidebarItem():
+                self.collection = item.collection
+                self.model = games.model
+            case _:
+                self.collection = None
+                self.model = games.model
+
+        if item is not self.new_collection_item:
+            self._selected_sidebar_item = index
+
+        if self.split_view.props.collapsed:
+            self.split_view.props.show_sidebar = False
+
+    @Gtk.Template.Callback()
+    def _update_selection(self, sidebar: Adw.Sidebar, *_args):
+        if sidebar.props.selected_item is self.new_collection_item:
+            sidebar.props.selected = self._selected_sidebar_item
+        self._selected_sidebar_item = sidebar.props.selected
+
+    @Gtk.Template.Callback()
+    def _setup_sidebar_menu(self, _sidebar, item: Adw.SidebarItem):
+        if isinstance(item, CollectionSidebarItem):
+            self.menu_collection = item.collection
+
+    @Gtk.Template.Callback()
+    def _setup_gamepad_monitor(self, *_args):
+        if sys.platform.startswith("linux"):
+            Gamepad.window = self  # pyright: ignore[reportPossiblyUnboundVariable]
+            gamepads.setup_monitor()  # pyright: ignore[reportPossiblyUnboundVariable]
+
+    @Gtk.Template.Callback()
+    def _show_details(self, grid: Gtk.GridView, position: int):
+        model = cast(Gio.ListModel[Game], grid.props.model)
+        self.details.game = model.get_item(position)
+        self.navigation_view.push_by_tag("details")
+
+    @Gtk.Template.Callback()
+    def _search_started(self, entry: Gtk.SearchEntry):
+        entry.grab_focus()
+
+    @Gtk.Template.Callback()
+    def _search_changed(self, entry: Gtk.SearchEntry):
+        self.search_text = entry.props.text
+        entry.grab_focus()
+
+    @Gtk.Template.Callback()
+    def _search_activate(self, _entry):
+        self.grid.activate_action("list.activate-item", GLib.Variant("u", 0))
+
+    @Gtk.Template.Callback()
+    def _stop_search(self, entry: Gtk.SearchEntry):
+        entry.props.text = ""
+        self.grid.grab_focus()
+
+    def _undo(self, toast: Adw.Toast | None = None):
+        if toast:
+            self._history.pop(toast)()
+            return
+
+        try:
+            toast, undo = self._history.popitem()
+        except KeyError:
+            return
+
+        toast.dismiss()
+        undo()

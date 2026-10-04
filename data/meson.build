@@ -1,5 +1,5 @@
 desktop_file = configure_file(
-    input: 'page.kramo.Cartridges.desktop.in',
+    input: 'io.github.IvanBez42.Hotbar.desktop.in',
     output: '@PLAINNAME@',
     configuration: conf,
 )
@@ -16,7 +16,7 @@ desktop_file = i18n.merge_file(
 test('Validate desktop file', desktop_utils, args: desktop_file)
 
 configure_file(
-    input: 'page.kramo.Cartridges.gschema.xml.in',
+    input: 'io.github.IvanBez42.Hotbar.gschema.xml.in',
     output: f'@app_id@.gschema.xml',
     configuration: conf,
     install_dir: get_option('datadir') / 'glib-2.0' / 'schemas',
@@ -29,7 +29,7 @@ test(
 )
 
 appstream_file = configure_file(
-    input: 'page.kramo.Cartridges.metainfo.xml.in',
+    input: 'io.github.IvanBez42.Hotbar.metainfo.xml.in',
     output: '@PLAINNAME@',
     configuration: conf,
 )
@@ -49,14 +49,14 @@ test(
 )
 
 configure_file(
-    input: 'page.kramo.Cartridges.service.in',
+    input: 'io.github.IvanBez42.Hotbar.service.in',
     output: f'@app_id@.service',
     configuration: conf,
     install_dir: get_option('datadir') / 'dbus-1' / 'services',
 )
 
 configure_file(
-    input: 'cartridges.in',
+    input: 'hotbar.in',
     output: '@BASENAME@',
     configuration: conf,
     install_dir: get_option('bindir'),
