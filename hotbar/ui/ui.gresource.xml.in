@@ -5,6 +5,7 @@
     <file>cover.ui</file>
     <file>game-details.ui</file>
     <file>game-item.ui</file>
+    <file>preferences.ui</file>
     <file>shortcuts-dialog.ui</file>
     <file>window.ui</file>
     <file>style.css</file>

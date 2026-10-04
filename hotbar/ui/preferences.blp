@@ -1,0 +1,14 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $Preferences: Adw.PreferencesDialog {
+  Adw.PreferencesPage {
+    Adw.PreferencesGroup {
+      title: _("Behavior");
+
+      Adw.SwitchRow quit_on_launch_row {
+        title: _("Quit After Launching Games");
+      }
+    }
+  }
+}

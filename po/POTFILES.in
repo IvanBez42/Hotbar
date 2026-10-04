@@ -19,6 +19,7 @@ hotbar/ui/game-item.blp
 hotbar/ui/game_details.py
 hotbar/ui/game_item.py
 hotbar/ui/games.py
+hotbar/ui/preferences.blp
 hotbar/ui/shortcuts-dialog-mac.blp
 hotbar/ui/shortcuts-dialog.blp
 hotbar/ui/sources.py

@@ -7,9 +7,9 @@ import locale
 from gettext import gettext as _
 from typing import TYPE_CHECKING, Any, cast
 
-from gi.repository import Gio, GObject, Gtk
+from gi.repository import Gio, GLib, GObject, Gtk
 
-from hotbar import STATE_SETTINGS, sources
+from hotbar import SETTINGS, STATE_SETTINGS, sources
 from hotbar.games import Game
 from hotbar.sources import imported
 
@@ -26,6 +26,8 @@ _SORT_MODES = {
     "oldest": ("added", False),
 }
 
+_QUIT_DELAY = 2
+
 
 class GameActions(Gio.SimpleActionGroup):
     """Action group for game actions."""
@@ -40,7 +42,7 @@ class GameActions(Gio.SimpleActionGroup):
         self.add_action_entries((
             ("add", lambda *_: add()),
             ("edit", lambda *_: edit(self.game)),
-            ("play", lambda *_: self.game.play()),
+            ("play", lambda *_: play(self.game)),
             ("hide", lambda *_: hide(self.game)),
             ("unhide", lambda *_: unhide(self.game)),
             ("remove", lambda *_: remove(self.game)),
@@ -102,6 +104,24 @@ class GameEditable(GObject.Object):
             self.game.name = self.name
             sorter.changed(Gtk.SorterChange.DIFFERENT)
         self.game.developer = self.developer
+
+
+def play(game: Game):
+    """Play `game`, quitting afterwards if the user enabled it."""
+    try:
+        game.play()
+    except OSError:
+        _window().send_toast(_("Couldn’t launch {}").format(game.name))
+        return
+
+    if not SETTINGS.get_boolean("quit-on-launch"):
+        return
+
+    # Give the launcher time to hand the game off #
+    app = cast(Gtk.Application, Gio.Application.get_default())
+    for window in app.get_windows():
+        window.set_visible(False)
+    GLib.timeout_add_seconds(_QUIT_DELAY, app.quit)
 
 
 def add():

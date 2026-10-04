@@ -10,6 +10,7 @@ from gi.repository import Adw
 from . import collections, sources
 from .config import APP_ID, PREFIX
 from .ui import PRIMARY_KEY
+from .ui.preferences import Preferences
 from .ui.window import Window
 
 
@@ -24,9 +25,11 @@ class Application(Adw.Application):
         self.props.style_manager.props.color_scheme = Adw.ColorScheme.PREFER_DARK
 
         self.add_action_entries((
+            ("preferences", lambda *_: Preferences().present(self.props.active_window)),
             ("about", lambda *_: self._present_about_dialog()),
             ("quit", lambda *_: self.quit()),
         ))
+        self.set_accels_for_action("app.preferences", (f"{PRIMARY_KEY}comma",))
         self.set_accels_for_action("app.quit", (f"{PRIMARY_KEY}q",))
 
         sources.load()
