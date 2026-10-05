@@ -43,13 +43,12 @@ LOCAL_APPDATA = Path(
 
 APPLICATION_SUPPORT = Path.home() / "Library" / "Application Support"
 
-OPEN = (
-    "open"
-    if sys.platform.startswith("darwin")
-    else "start"
-    if sys.platform.startswith("win32")
-    else "xdg-open"
-)
+if sys.platform.startswith("darwin"):
+    OPEN = "open"
+elif sys.platform.startswith("win32"):
+    OPEN = "start"
+else:
+    OPEN = "xdg-open"
 
 
 class _SourceModule(Protocol):

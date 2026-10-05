@@ -51,7 +51,7 @@ class _SideloadSource(_Source):
 
 
 class _StoreSource(_Source):
-    _INSTALLED_PATH: Path
+    _CONFIG_DIR: Path  # Where the store's backend keeps its installed.json
 
     @classmethod
     def library_path(cls) -> Path:
@@ -61,7 +61,7 @@ class _StoreSource(_Source):
     @classmethod
     def installed_app_names(cls) -> set[str]:
         try:
-            with (_config_dir() / cls._INSTALLED_PATH).open() as fp:
+            with (_config_dir() / cls._CONFIG_DIR / "installed.json").open() as fp:
                 data = json.load(fp)
         except (OSError, JSONDecodeError):
             return set()
@@ -77,13 +77,13 @@ class _StoreSource(_Source):
 class _LegendarySource(_StoreSource):
     ID = "legendary"
     COVER_URI_PARAMS = "?h=400&resize=1&w=300"
-    _INSTALLED_PATH = Path("legendaryConfig", "legendary", "installed.json")
+    _CONFIG_DIR = Path("legendaryConfig", "legendary")
 
 
 class _GOGSource(_StoreSource):
     ID = "gog"
     LIBRARY_KEY = "games"
-    _INSTALLED_PATH = Path("gog_store", "installed.json")
+    _CONFIG_DIR = Path("gog_store")
 
     @override
     @staticmethod
@@ -97,7 +97,7 @@ class _GOGSource(_StoreSource):
 class _NileSource(_StoreSource):
     ID = "nile"
     LIBRARY_PATH = Path("store_cache", "nile_library.json")
-    _INSTALLED_PATH = Path("nile_config", "nile", "installed.json")
+    _CONFIG_DIR = Path("nile_config", "nile")
 
     @override
     @staticmethod

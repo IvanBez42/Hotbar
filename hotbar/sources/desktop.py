@@ -53,6 +53,7 @@ _FLATPAK_ID_BLACKLIST = frozenset((
     "org.libretro.RetroArch",
 ))
 
+_GROUP = GLib.KEY_FILE_DESKTOP_GROUP  # "Desktop Entry"
 _HIDDEN_KEYS = "NoDisplay", "Hidden"
 
 _ICON_FALLBACK = "application-x-executable"
@@ -79,27 +80,27 @@ def _game_from(path: Path) -> Game:
     file = GLib.KeyFile()
     file.load_from_file(str(path), GLib.KeyFileFlags.NONE)
 
-    if "Game" not in file.get_string_list("Desktop Entry", "Categories"):
+    if "Game" not in file.get_string_list(_GROUP, "Categories"):
         raise ValueError
 
     for key in _HIDDEN_KEYS:
         with suppress(GLib.Error):
-            if file.get_boolean("Desktop Entry", key):
+            if file.get_boolean(_GROUP, key):
                 raise ValueError
 
-    exe = file.get_string("Desktop Entry", "Exec")
+    exe = file.get_string(_GROUP, "Exec")
     if any(exe.startswith(cmd) for cmd in _EXECUTABLE_BLACKLIST):
         raise ValueError
 
     with suppress(GLib.Error):
-        if file.get_string("Desktop Entry", "X-Flatpak") in _FLATPAK_ID_BLACKLIST:
+        if file.get_string(_GROUP, "X-Flatpak") in _FLATPAK_ID_BLACKLIST:
             raise ValueError
 
-        if not _try_exec(file.get_string("Desktop Entry", "TryExec")):
+        if not _try_exec(file.get_string(_GROUP, "TryExec")):
             raise ValueError
 
     try:
-        icon_name = file.get_string("Desktop Entry", "Icon")
+        icon_name = file.get_string(_GROUP, "Icon")
     except GLib.Error:
         icon_name = _ICON_FALLBACK
 
@@ -123,7 +124,7 @@ def _game_from(path: Path) -> Game:
         executable=f"gio launch {shlex.quote(str(real_path))}",
         game_id=f"{ID}_{path.stem}",
         source=ID,
-        name=file.get_string("Desktop Entry", "Name"),
+        name=file.get_string(_GROUP, "Name"),
         cover=cover.from_icon(icon),
     )
 
