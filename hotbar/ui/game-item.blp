@@ -4,10 +4,6 @@ $GameActions game_actions {
   game: bind template.game;
 }
 
-$CollectionActions collection_actions {
-  game: bind template.game;
-}
-
 template $GameItem: Box {
   name: "game-item";
   orientation: vertical;
@@ -33,61 +29,23 @@ template $GameItem: Box {
       margin-top: 6;
       margin-end: 6;
       notify::active => $_reveal_buttons();
-      notify::active => $_setup_collections();
 
-      popover: PopoverMenu {
-        menu-model: menu {
-          section {
-            item (_("Edit"), "game.edit")
+      menu-model: menu {
+        item (_("Edit"), "game.edit")
 
-            item {
-              label: _("Hide");
-              action: "game.hide";
-              hidden-when: "action-disabled";
-            }
-
-            item {
-              label: _("Unhide");
-              action: "game.unhide";
-              hidden-when: "action-disabled";
-            }
-
-            item (_("Remove"), "game.remove")
-          }
-
-          section {
-            item (_("New Collection"), "collection.add")
-
-            item {
-              custom: "collections";
-            }
-          }
-        };
-
-        [collections]
-        Box {
-          orientation: vertical;
-          visible: bind collections_box.visible;
-
-          Separator {}
-
-          Label {
-            label: _("Collections");
-            halign: start;
-            margin-top: 6;
-            margin-bottom: 9;
-            margin-start: 12;
-            margin-end: 12;
-
-            styles [
-              "heading",
-            ]
-          }
-
-          $CollectionsBox collections_box {
-            game: bind template.game;
-          }
+        item {
+          label: _("Hide");
+          action: "game.hide";
+          hidden-when: "action-disabled";
         }
+
+        item {
+          label: _("Unhide");
+          action: "game.unhide";
+          hidden-when: "action-disabled";
+        }
+
+        item (_("Remove"), "game.remove")
       };
 
       styles [

@@ -15,7 +15,6 @@ from hotbar.config import PREFIX
 from hotbar.games import Game
 
 from . import closures
-from .collections import CollectionActions, CollectionsBox
 from .cover import Cover  # noqa: F401
 from .games import GameActions, GameEditable
 
@@ -27,11 +26,9 @@ class GameDetails(Adw.NavigationPage):
 
     __gtype_name__ = __qualname__
 
-    collections_box: CollectionsBox = Gtk.Template.Child()
     name_entry: Adw.EntryRow = Gtk.Template.Child()
 
     game_actions: GameActions = Gtk.Template.Child()
-    collection_actions: CollectionActions = Gtk.Template.Child()
     game_editable: GameEditable = Gtk.Template.Child()
     game_signals: GObject.SignalGroup = Gtk.Template.Child()
 
@@ -64,7 +61,6 @@ class GameDetails(Adw.NavigationPage):
         )
 
         self.insert_action_group("game", self.game_actions)
-        self.insert_action_group("collection", self.collection_actions)
 
         for name in "hidden", "removed":
             self.game_signals.connect_closure(
@@ -97,13 +93,6 @@ class GameDetails(Adw.NavigationPage):
         if not (self.editing and self.game):
             self.activate_action("navigation.pop")
         self.editing = False
-
-    @Gtk.Template.Callback()
-    def _setup_collections(self, button: Gtk.MenuButton, *_args):
-        if button.props.active:
-            self.collections_box.build()
-        else:
-            self.collections_box.finish()
 
     @Gtk.Template.Callback()
     @staticmethod

@@ -8,7 +8,6 @@ from gi.repository import GObject, Gtk
 from hotbar.config import PREFIX
 from hotbar.games import Game
 
-from .collections import CollectionActions, CollectionsBox
 from .cover import Cover  # noqa: F401
 from .games import GameActions
 
@@ -21,11 +20,9 @@ class GameItem(Gtk.Box):
 
     motion: Gtk.EventControllerMotion = Gtk.Template.Child()
     options: Gtk.MenuButton = Gtk.Template.Child()
-    collections_box: CollectionsBox = Gtk.Template.Child()
     play: Gtk.Button = Gtk.Template.Child()
 
     game_actions: GameActions = Gtk.Template.Child()
-    collection_actions: CollectionActions = Gtk.Template.Child()
 
     game = GObject.Property(type=Game)
     position = GObject.Property(type=int)
@@ -34,7 +31,6 @@ class GameItem(Gtk.Box):
         super().__init__(**kwargs)
 
         self.insert_action_group("game", self.game_actions)
-        self.insert_action_group("collection", self.collection_actions)
         self._reveal_buttons()
 
     @Gtk.Template.Callback()
@@ -45,10 +41,3 @@ class GameItem(Gtk.Box):
         ):
             widget.props.can_focus = widget.props.can_target = reveal
             (widget.remove_css_class if reveal else widget.add_css_class)("hidden")
-
-    @Gtk.Template.Callback()
-    def _setup_collections(self, button: Gtk.MenuButton, *_args):
-        if button.props.active:
-            self.collections_box.build()
-        else:
-            self.collections_box.finish()
