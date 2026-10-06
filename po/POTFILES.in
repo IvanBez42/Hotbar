@@ -1,5 +1,4 @@
 hotbar/application.py
-hotbar/collections.py
 hotbar/cover.py
 hotbar/gamepads.py
 hotbar/games.py
@@ -9,9 +8,6 @@ hotbar/sources/heroic.py
 hotbar/sources/imported.py
 hotbar/sources/steam.py
 hotbar/ui/closures.py
-hotbar/ui/collection-details.blp
-hotbar/ui/collection_details.py
-hotbar/ui/collections.py
 hotbar/ui/cover.blp
 hotbar/ui/cover.py
 hotbar/ui/game-details.blp

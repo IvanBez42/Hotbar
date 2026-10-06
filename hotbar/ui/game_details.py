@@ -15,7 +15,6 @@ from hotbar.config import PREFIX
 from hotbar.games import Game
 
 from . import closures
-from .collections import CollectionActions, CollectionsBox
 from .cover import Cover  # noqa: F401
 from .games import GameActions, GameEditable
 
@@ -27,11 +26,9 @@ class GameDetails(Adw.NavigationPage):
 
     __gtype_name__ = __qualname__
 
-    collections_box: CollectionsBox = Gtk.Template.Child()
     name_entry: Adw.EntryRow = Gtk.Template.Child()
 
     game_actions: GameActions = Gtk.Template.Child()
-    collection_actions: CollectionActions = Gtk.Template.Child()
     game_editable: GameEditable = Gtk.Template.Child()
     game_signals: GObject.SignalGroup = Gtk.Template.Child()
 
@@ -64,7 +61,6 @@ class GameDetails(Adw.NavigationPage):
         )
 
         self.insert_action_group("game", self.game_actions)
-        self.insert_action_group("collection", self.collection_actions)
 
         for name in "hidden", "removed":
             self.game_signals.connect_closure(
@@ -99,13 +95,6 @@ class GameDetails(Adw.NavigationPage):
         self.editing = False
 
     @Gtk.Template.Callback()
-    def _setup_collections(self, button: Gtk.MenuButton, *_args):
-        if button.props.active:
-            self.collections_box.build()
-        else:
-            self.collections_box.finish()
-
-    @Gtk.Template.Callback()
     @staticmethod
     def _downscale(this: Gtk.Widget, cover: Gdk.Paintable | None) -> Gdk.Texture | None:
         if cover and (renderer := cast(Gtk.Native, this.props.root).get_renderer()):
@@ -118,29 +107,33 @@ class GameDetails(Adw.NavigationPage):
     @Gtk.Template.Callback()
     @staticmethod
     def _relative_date(_this, timestamp: int) -> str:
+        if not timestamp:
+            return _("Never")
+
         date = datetime.fromtimestamp(timestamp, UTC)
         now = datetime.now(UTC)
-        return (
-            _("Never")
-            if not timestamp
-            else _("Today")
-            if (n_days := (now - date).days) == 0
-            else _("Yesterday")
-            if n_days == 1
-            else date.strftime("%A")
-            if n_days <= (day_of_week := now.weekday())
-            else _("Last Week")
-            if n_days <= day_of_week + 7
-            else _("This Month")
-            if n_days <= (day_of_month := now.day)
-            else _("Last Month")
-            if n_days <= day_of_month + 30
-            else date.strftime("%B")
-            if n_days < (day_of_year := now.timetuple().tm_yday)
-            else _("Last Year")
-            if n_days <= day_of_year + 365
-            else date.strftime("%Y")
-        )
+        n_days = (now - date).days
+        day_of_week = now.weekday()
+        day_of_month = now.day
+        day_of_year = now.timetuple().tm_yday
+
+        if n_days == 0:
+            return _("Today")
+        if n_days == 1:
+            return _("Yesterday")
+        if n_days <= day_of_week:
+            return date.strftime("%A")
+        if n_days <= day_of_week + 7:
+            return _("Last Week")
+        if n_days <= day_of_month:
+            return _("This Month")
+        if n_days <= day_of_month + 30:
+            return _("Last Month")
+        if n_days < day_of_year:
+            return date.strftime("%B")
+        if n_days <= day_of_year + 365:
+            return _("Last Year")
+        return date.strftime("%Y")
 
     @Gtk.Template.Callback()
     @staticmethod

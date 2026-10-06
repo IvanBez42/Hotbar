@@ -1,0 +1,8 @@
+version: 2
+updates:
+  # Monthly PRs to dev that bump the dev tools pinned in uv.lock
+  - package-ecosystem: "uv"
+    directory: "/"
+    target-branch: "dev"
+    schedule:
+      interval: "monthly"

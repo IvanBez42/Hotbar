@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <schemalist gettext-domain="hotbar">
   <schema id="@APP_ID@" path="@PREFIX@/">
-    <key name="collections" type="aa{sv}">
-      <default>[]</default>
-    </key>
     <key name="quit-on-launch" type="b">
       <default>false</default>
     </key>
