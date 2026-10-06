@@ -1,8 +1,12 @@
 <div align="center">
   <img alt="" src="data/icons/io.github.IvanBez42.Hotbar.svg" width="128" height="128">
   <h1>Hotbar</h1>
-  <p>Launch all your games</p>
 </div>
+
+[![Latest release](https://img.shields.io/github/v/release/IvanBez42/Hotbar)](https://github.com/IvanBez42/Hotbar/releases/latest)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
 
 ## Acknowledgements
 
