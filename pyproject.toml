@@ -1,4 +1,6 @@
 [project]
+name = "hotbar"
+version = "0.1.0"
 requires-python = ">= 3.13"
 
 [dependency-groups]
@@ -9,6 +11,10 @@ dev = [
   "pygobject-stubs @ git+https://github.com/jamiethecat/pygobject-stubs.git",
   "ruff",
 ]
+
+[tool.uv]
+# Hotbar is built with Meson/Flatpak, uv only manages the dev tools
+package = false
 
 [tool.pyright]
 exclude = ["**/__pycache__", "**/.*", "_build/**"]
