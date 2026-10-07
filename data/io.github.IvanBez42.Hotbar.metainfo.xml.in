@@ -7,17 +7,42 @@
   <name>Hotbar</name>
   <summary>Launch all your games</summary>
   <description>
-    <p>Hotbar is a simple game launcher for all of your games.</p>
-    <p>Hotbar is a fork of Cartridges by kramo.</p>
+    <p>Hotbar is a minimalistic Adwaita game launcher that brings all of your games together in one place.</p>
+    <p>Games are imported automatically from:</p>
+    <ul>
+      <li>Steam</li>
+      <li>Games installed as desktop apps</li>
+      <li>Heroic, including Epic, GOG and Amazon games</li>
+      <li>Lutris</li>
+      <li>Legendary</li>
+      <li>itch</li>
+    </ul>
+    <p>You can also add your own games, hide the ones you don't want to see, and look any game up on sites like ProtonDB, PCGamingWiki and HowLongToBeat.</p>
+    <p>Hotbar continues the work of Cartridges by kramo, which is no longer maintained.</p>
   </description>
 
-  <developer id="io.github.IvanBez42">
+  <developer id="io.github.ivanbez42">
     <name translate="no">Ivan</name>
   </developer>
 
   <url type="homepage">https://github.com/IvanBez42/Hotbar</url>
   <url type="vcs-browser">https://github.com/IvanBez42/Hotbar</url>
   <url type="bugtracker">https://github.com/IvanBez42/Hotbar/issues</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/IvanBez42/Hotbar/v0.1.0/data/screenshots/MainUI.png</image>
+      <caption>All your games in one library</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/IvanBez42/Hotbar/v0.1.0/data/screenshots/Library.png</image>
+      <caption>Browse games by source</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/IvanBez42/Hotbar/v0.1.0/data/screenshots/GameEdit.png</image>
+      <caption>Edit any game's details</caption>
+    </screenshot>
+  </screenshots>
 
   <translation type="gettext">hotbar</translation>
   <launchable type="desktop-id">@APP_ID@.desktop</launchable>
@@ -38,7 +63,15 @@
   </branding>
 
   <releases>
-    <release version="0.1.0" date="2026-10-03"/>
+    <release version="0.1.0" date="2026-10-03">
+      <description>
+        <p>The first release of Hotbar, picking up where Cartridges left off.</p>
+        <ul>
+          <li>New preference to quit Hotbar after launching a game</li>
+          <li>Collections have been removed to keep the library simple</li>
+        </ul>
+      </description>
+    </release>
   </releases>
 
 </component>

@@ -1,4 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <!-- diagonal hazard stripes for the development label -->
+    <pattern id="hazard" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="20" height="20" fill="#f6d32d"/>
+      <rect width="10" height="20" fill="#241f31"/>
+    </pattern>
+  </defs>
   <!-- back left (darker, so it recedes) -->
   <g transform="translate(36 52) rotate(-14) scale(0.62)">
     <rect x="-38" y="-41" width="76" height="94" rx="12" fill="#2b2735"/>
@@ -16,12 +23,12 @@
     <rect x="-28" y="-23" width="56" height="56" rx="6" fill="#625e6c"/>
   </g>
 
-  <!-- front, selected (lighter body + blue label) -->
+  <!-- front, selected (lighter body + hazard-striped label) -->
   <g transform="translate(64 70) scale(0.78)">
     <rect x="-38" y="-41" width="76" height="94" rx="12" fill="#3d3846"/>
     <rect x="-38" y="-47" width="76" height="94" rx="12" fill="#77767b"/>
     <rect x="-26" y="-39" width="52" height="3" rx="1.5" fill="#9a9996"/>
     <rect x="-26" y="-33" width="52" height="3" rx="1.5" fill="#9a9996"/>
-    <rect x="-28" y="-23" width="56" height="56" rx="6" fill="#ace335"/>
+    <rect x="-28" y="-23" width="56" height="56" rx="6" fill="url(#hazard)"/>
   </g>
 </svg>

@@ -8,6 +8,27 @@
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
 
+![Hotbar showing a library of games](data/screenshots/MainUI.png)
+
+Hotbar is a minimalistic Adwaita game launcher that brings all of your games together in one place. Games are imported automatically from:
+
+- Steam
+- Games installed as desktop apps
+- Heroic, including Epic, GOG and Amazon games
+- Lutris
+- Legendary
+- itch
+
+You can also add your own games, hide the ones you don't want to see, and look any game up on sites like ProtonDB, PCGamingWiki and HowLongToBeat.
+
+<details>
+  <summary>More screenshots</summary>
+
+![Games filtered by source in the sidebar](data/screenshots/Library.png)
+![Editing a game's details](data/screenshots/GameEdit.png)
+
+</details>
+
 ## Acknowledgements
 
 Hotbar is a fork of [Cartridges](https://codeberg.org/kramo/cartridges) by kramo, licensed under [GPL-3.0-or-later](LICENSE).
