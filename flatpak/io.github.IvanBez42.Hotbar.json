@@ -1,7 +1,7 @@
 {
-  "id": "io.github.IvanBez42.Hotbar.Devel",
+  "id": "io.github.IvanBez42.Hotbar",
   "runtime": "org.gnome.Platform",
-  "runtime-version": "master",
+  "runtime-version": "51",
   "sdk": "org.gnome.Sdk",
   "command": "hotbar",
   "finish-args": [
@@ -44,11 +44,12 @@
       "name": "hotbar",
       "builddir": true,
       "buildsystem": "meson",
-      "config-opts": ["-Dprofile=development"],
+      "config-opts": ["-Dprofile=release"],
       "sources": [
         {
-          "type": "dir",
-          "path": "../"
+          "type": "git",
+          "path": "../",
+          "branch": "main"
         }
       ],
       "modules": ["python3-pillow.json"]
