@@ -41,6 +41,9 @@ PROPERTIES: tuple[_GameProp, ...] = (
 
 _SPEC_VERSION = 2.0
 
+# Properties the user can change, saved to disk as soon as they change
+_USER_PROPS = {"hidden", "removed", "last-played", "name", "developer", "executable"}
+
 
 class Game(Gio.SimpleActionGroup):
     """Game data class."""
@@ -97,14 +100,44 @@ class Game(Gio.SimpleActionGroup):
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0,
         )
 
+    def apply_saved(self):
+        """Apply the user's saved changes, if any, over the data from the source."""
+        try:
+            with Path(f"{GAMES_DIR / self.game_id}.json").open(encoding="utf-8") as f:
+                saved = Game.from_data(json.load(f))
+        except (OSError, ValueError, TypeError):
+            return
+
+        self.hidden = saved.hidden
+        self.removed = saved.removed
+        self.name = saved.name
+        self.developer = saved.developer or self.developer
+        self.executable = saved.executable
+        self.last_played = max(self.last_played, saved.last_played)
+        self.added = saved.added or self.added
+
+    def save_on_change(self):
+        """Save whenever the user changes the game. Call once it's fully loaded."""
+        self.connect("notify", Game._on_notify)
+
+    def _on_notify(self, pspec: GObject.ParamSpec):
+        if pspec.name in _USER_PROPS:
+            self.save()
+
     def save(self):
         """Save the game's properties to disk."""
         properties = {prop.name: getattr(self, prop.name) for prop in PROPERTIES}
 
         GAMES_DIR.mkdir(parents=True, exist_ok=True)
         path = Path(f"{GAMES_DIR / self.game_id}.json")
-        with path.open("w", encoding="utf-8") as f:
+
+        # Write to a temporary file and swap it in, so a crash can't corrupt the game
+        tmp = path.with_name(f"{path.name}.tmp")
+        with tmp.open("w", encoding="utf-8") as f:
             json.dump(properties, f, indent=4, sort_keys=True)
+            f.flush()
+            os.fsync(f.fileno())
+        tmp.replace(path)
 
 
 def format_executable(executable: str) -> str:

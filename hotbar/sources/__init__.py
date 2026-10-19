@@ -89,6 +89,9 @@ class Source(GObject.Object, Gio.ListModel[Game]):
         except OSError:
             self._games = []
 
+        for game in self._games:
+            game.save_on_change()
+
     def do_get_item(self, position: int) -> Game | None:
         """Get the item at `position`."""
         try:
@@ -108,11 +111,13 @@ class Source(GObject.Object, Gio.ListModel[Game]):
         """Append `game` to `self`."""
         pos = len(self._games)
         self._games.append(game)
+        game.save_on_change()
         self.items_changed(pos, 0, 1)
 
     def _get_games(self, added: int) -> Generator[Game]:
         for game in self._module.get_games():
             game.added = game.added or added
+            game.apply_saved()
             yield game
 
 

@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: Copyright 2025 Jamie Gravendeel
 
 import locale
+import time
 from gettext import gettext as _
 from typing import TYPE_CHECKING, Any, cast
 
@@ -113,6 +114,9 @@ def play(game: Game):
     except OSError:
         _window().send_toast(_("Couldn’t launch {}").format(game.name))
         return
+
+    game.last_played = int(time.time())
+    sorter.changed(Gtk.SorterChange.DIFFERENT)
 
     if not SETTINGS.get_boolean("quit-on-launch"):
         return
