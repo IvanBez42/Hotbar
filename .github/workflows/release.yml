@@ -1,0 +1,101 @@
+# Publish tagged releases to the Flatpak repo on GitHub Pages
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+# Never let two releases rewrite gh-pages at the same time
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-51
+      options: --privileged
+    permissions:
+      contents: write
+    env:
+      APP_ID: io.github.IvanBez42.Hotbar
+      SITE_URL: https://ivanbez42.github.io/Hotbar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Check the release
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          version=${GITHUB_REF_NAME#v}
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::$GITHUB_REF_NAME is not on main"
+            exit 1
+          fi
+          if ! grep -q "version: '$version'" meson.build; then
+            echo "::error::meson.build is not at version $version"
+            exit 1
+          fi
+          if ! grep -q "<release version=\"$version\"" "data/$APP_ID.metainfo.xml.in"; then
+            echo "::error::The metainfo has no release notes for $version"
+            exit 1
+          fi
+          # Point main at the tagged commit so exactly that gets built
+          git branch --force main HEAD
+
+      - name: Build
+        uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
+        with:
+          manifest-path: flatpak/${{ env.APP_ID }}.json
+          run-tests: true
+          build-bundle: false
+          upload-artifact: false
+
+      - name: Import signing key
+        env:
+          FLATPAK_GPG_KEY: ${{ secrets.FLATPAK_GPG_KEY }}
+        run: |
+          printf '%s\n' "$FLATPAK_GPG_KEY" | gpg --batch --import
+          gpg --list-secret-keys --with-colons |
+            awk -F: '/^fpr/ {print "GPG_KEY_ID=" $10; exit}' >>"$GITHUB_ENV"
+
+      - name: Fetch the published repo
+        run: |
+          mkdir site
+          if git fetch --depth=1 origin gh-pages; then
+            git --work-tree=site checkout FETCH_HEAD -- .
+          fi
+
+      - name: Publish
+        run: build-aux/flatpak-publish.sh repo site
+
+      - name: Bundle
+        run: |
+          flatpak build-bundle \
+            --repo-url="$SITE_URL/repo/" \
+            --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
+            --gpg-keys=site/hotbar.gpg \
+            site/repo Hotbar.flatpak "$APP_ID" master
+
+      - name: Push to GitHub Pages
+        working-directory: site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # One fresh commit each time, so old builds don't pile up in git history
+          git init -q -b gh-pages
+          git add -A
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -q -m "Publish $GITHUB_REF_NAME"
+          git push --force "https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" gh-pages
+
+      - name: Attach bundle to the GitHub release
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          files: Hotbar.flatpak
