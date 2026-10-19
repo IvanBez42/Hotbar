@@ -29,6 +29,14 @@ You can also add your own games, hide the ones you don't want to see, and look a
 
 </details>
 
+## Install
+
+```sh
+flatpak install --user https://ivanbez42.github.io/Hotbar/io.github.IvanBez42.Hotbar.flatpakref
+```
+
+Updates arrive through your software store or `flatpak update`.
+
 ## Acknowledgements
 
 Hotbar is a fork of [Cartridges](https://codeberg.org/kramo/cartridges) by kramo, licensed under [GPL-3.0-or-later](LICENSE).
