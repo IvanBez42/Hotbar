@@ -63,6 +63,11 @@
   </branding>
 
   <releases>
+    <release version="0.1.1" date="2026-10-19">
+      <description>
+        <p>Hotbar now has its own Flatpak repository, so updates arrive automatically through your software store.</p>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-10-07">
       <description>
         <p>The first release of Hotbar, picking up where Cartridges left off.</p>
