@@ -33,7 +33,7 @@ template $GameDetails: Adw.NavigationPage {
 
     Shortcut {
       trigger: "Delete|KP_Delete";
-      action: "action(game.remove)";
+      action: "action(game.hide)";
     }
   }
 
@@ -202,17 +202,6 @@ template $GameDetails: Adw.NavigationPage {
                         action-name: "game.unhide";
                         icon-name: "view-reveal-symbolic";
                         tooltip-text: _("Unhide");
-                        valign: center;
-
-                        styles [
-                          "circular",
-                        ]
-                      }
-
-                      Button {
-                        action-name: "game.remove";
-                        icon-name: "user-trash-symbolic";
-                        tooltip-text: _("Remove");
                         valign: center;
 
                         styles [

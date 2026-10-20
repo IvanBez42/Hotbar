@@ -34,7 +34,6 @@ PROPERTIES: tuple[_GameProp, ...] = (
     _GameProp("last_played", int),
     _GameProp("name", str, required=True, editable=True),
     _GameProp("developer", str, editable=True),
-    _GameProp("removed", bool),
     _GameProp("blacklisted", bool),
     _GameProp("version", float),
 )
@@ -42,7 +41,7 @@ PROPERTIES: tuple[_GameProp, ...] = (
 _SPEC_VERSION = 2.0
 
 # Properties the user can change, saved to disk as soon as they change
-_USER_PROPS = {"hidden", "removed", "last-played", "name", "developer", "executable"}
+_USER_PROPS = {"hidden", "last-played", "name", "developer", "executable"}
 
 
 class Game(Gio.SimpleActionGroup):
@@ -58,7 +57,6 @@ class Game(Gio.SimpleActionGroup):
     last_played = GObject.Property(type=int)
     name = GObject.Property(type=str)
     developer = GObject.Property(type=str)
-    removed = GObject.Property(type=bool, default=False)
     blacklisted = GObject.Property(type=bool, default=False)
     version = GObject.Property(type=float, default=_SPEC_VERSION)
 
@@ -109,7 +107,6 @@ class Game(Gio.SimpleActionGroup):
             return
 
         self.hidden = saved.hidden
-        self.removed = saved.removed
         self.name = saved.name
         self.developer = saved.developer or self.developer
         self.executable = saved.executable

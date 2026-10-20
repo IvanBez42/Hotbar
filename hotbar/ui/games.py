@@ -46,28 +46,23 @@ class GameActions(Gio.SimpleActionGroup):
             ("play", lambda *_: play(self.game)),
             ("hide", lambda *_: hide(self.game)),
             ("unhide", lambda *_: unhide(self.game)),
-            ("remove", lambda *_: remove(self.game)),
         ))
 
         game = Gtk.PropertyExpression.new(GameActions, None, "game")
         has_game = Gtk.ClosureExpression.new(bool, closures.bool_, (game,))
         hidden = Gtk.PropertyExpression.new(Game, game, "hidden")
         not_hidden = Gtk.ClosureExpression.new(bool, closures.not_, (hidden,))
-        removed = Gtk.PropertyExpression.new(Game, game, "removed")
-        not_removed = Gtk.ClosureExpression.new(bool, closures.not_, (removed,))
         false = Gtk.ConstantExpression.new_for_value(False)
 
         edit_action = cast(Gio.SimpleAction, self.lookup_action("edit"))
         play_action = cast(Gio.SimpleAction, self.lookup_action("play"))
         hide_action = cast(Gio.SimpleAction, self.lookup_action("hide"))
         unhide_action = cast(Gio.SimpleAction, self.lookup_action("unhide"))
-        remove_action = cast(Gio.SimpleAction, self.lookup_action("remove"))
 
         has_game.bind(edit_action, "enabled", self)
         has_game.bind(play_action, "enabled", self)
         Gtk.TryExpression.new((hidden, false)).bind(unhide_action, "enabled", self)
         Gtk.TryExpression.new((not_hidden, false)).bind(hide_action, "enabled", self)
-        Gtk.TryExpression.new((not_removed, false)).bind(remove_action, "enabled", self)
 
 
 class GameEditable(GObject.Object):
@@ -162,15 +157,6 @@ def unhide(game: Game):
     )
 
 
-def remove(game: Game):
-    """Remove `game` and notify the user with a toast."""
-    game.removed = True
-    _window().send_toast(
-        _("{} removed").format(game.name),
-        undo=lambda: setattr(game, "removed", False),
-    )
-
-
 def _window() -> "Window":
     app = cast(Gtk.Application, Gio.Application.get_default())
     return cast("Window", app.props.active_window)
@@ -194,12 +180,6 @@ def _name_cmp(a: str, b: str) -> int:
 
 
 filter_ = Gtk.EveryFilter()
-filter_.append(
-    Gtk.BoolFilter(
-        expression=Gtk.PropertyExpression.new(Game, None, "removed"),
-        invert=True,
-    )
-)
 filter_.append(
     Gtk.BoolFilter(
         expression=Gtk.PropertyExpression.new(Game, None, "blacklisted"),
