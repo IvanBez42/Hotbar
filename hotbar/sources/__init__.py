@@ -17,6 +17,8 @@ from gi.repository import Gio, GLib, GObject
 
 from hotbar.games import Game
 
+from . import imported
+
 if Path("/.flatpak-info").exists():
     DATA = Path(os.getenv("HOST_XDG_DATA_HOME", Path.home() / ".local" / "share"))
     SYSTEM_DATA = (
@@ -117,7 +119,8 @@ class Source(GObject.Object, Gio.ListModel[Game]):
     def _get_games(self, added: int) -> Generator[Game]:
         for game in self._module.get_games():
             game.added = game.added or added
-            game.apply_saved()
+            if self.id != imported.ID:
+                game.apply_saved()
             yield game
 
 

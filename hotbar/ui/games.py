@@ -95,11 +95,13 @@ class GameEditable(GObject.Object):
             self.game = imported.new()
             sources.get(imported.ID).append(self.game)
 
-        self.game.executable = self.executable
-        if self.game.name != self.name:
-            self.game.name = self.name
-            sorter.changed(Gtk.SorterChange.DIFFERENT)
-        self.game.developer = self.developer
+        # Hold back change signals so the whole edit is saved in one write
+        with self.game.freeze_notify():
+            self.game.executable = self.executable
+            if self.game.name != self.name:
+                self.game.name = self.name
+                sorter.changed(Gtk.SorterChange.DIFFERENT)
+            self.game.developer = self.developer
 
 
 def play(game: Game):
