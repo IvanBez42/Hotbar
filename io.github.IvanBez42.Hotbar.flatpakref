@@ -1,0 +1,9 @@
+[Flatpak Ref]
+Name=io.github.IvanBez42.Hotbar
+Branch=master
+Title=Hotbar
+Url=https://ivanbez42.github.io/Hotbar/repo/
+SuggestRemoteName=hotbar
+RuntimeRepo=https://dl.flathub.org/repo/flathub.flatpakrepo
+IsRuntime=false
+GPGKey=mDMEatXqFBYJKwYBBAHaRw8BAQdAuNPuctIgRpeU8jpzw+JS48lVZURwn0bwwTH2Sy8calK0E0hvdGJhciBGbGF0cGFrIHJlcG+IkwQTFgoAOxYhBLjzQiOPHRp9IB2WrIxGS2dtQineBQJq1eoUAhsDBQsJCAcCAiICBhUKCQgLAgQWAgMBAh4HAheAAAoJEIxGS2dtQineq7QBAODUK5LN2mCBtRArnga79u+a0yzuJ/a4TYsm/vs9F1yrAQDX68zV2sbOcijlTvDdcbOBuFpbIMb1tyksKLAdeEjECA==
