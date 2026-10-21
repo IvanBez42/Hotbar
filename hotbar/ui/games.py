@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: Copyright 2025 Jamie Gravendeel
 
 import locale
+import time
 from gettext import gettext as _
 from typing import TYPE_CHECKING, Any, cast
 
@@ -45,28 +46,23 @@ class GameActions(Gio.SimpleActionGroup):
             ("play", lambda *_: play(self.game)),
             ("hide", lambda *_: hide(self.game)),
             ("unhide", lambda *_: unhide(self.game)),
-            ("remove", lambda *_: remove(self.game)),
         ))
 
         game = Gtk.PropertyExpression.new(GameActions, None, "game")
         has_game = Gtk.ClosureExpression.new(bool, closures.bool_, (game,))
         hidden = Gtk.PropertyExpression.new(Game, game, "hidden")
         not_hidden = Gtk.ClosureExpression.new(bool, closures.not_, (hidden,))
-        removed = Gtk.PropertyExpression.new(Game, game, "removed")
-        not_removed = Gtk.ClosureExpression.new(bool, closures.not_, (removed,))
         false = Gtk.ConstantExpression.new_for_value(False)
 
         edit_action = cast(Gio.SimpleAction, self.lookup_action("edit"))
         play_action = cast(Gio.SimpleAction, self.lookup_action("play"))
         hide_action = cast(Gio.SimpleAction, self.lookup_action("hide"))
         unhide_action = cast(Gio.SimpleAction, self.lookup_action("unhide"))
-        remove_action = cast(Gio.SimpleAction, self.lookup_action("remove"))
 
         has_game.bind(edit_action, "enabled", self)
         has_game.bind(play_action, "enabled", self)
         Gtk.TryExpression.new((hidden, false)).bind(unhide_action, "enabled", self)
         Gtk.TryExpression.new((not_hidden, false)).bind(hide_action, "enabled", self)
-        Gtk.TryExpression.new((not_removed, false)).bind(remove_action, "enabled", self)
 
 
 class GameEditable(GObject.Object):
@@ -99,11 +95,13 @@ class GameEditable(GObject.Object):
             self.game = imported.new()
             sources.get(imported.ID).append(self.game)
 
-        self.game.executable = self.executable
-        if self.game.name != self.name:
-            self.game.name = self.name
-            sorter.changed(Gtk.SorterChange.DIFFERENT)
-        self.game.developer = self.developer
+        # Hold back change signals so the whole edit is saved in one write
+        with self.game.freeze_notify():
+            self.game.executable = self.executable
+            if self.game.name != self.name:
+                self.game.name = self.name
+                sorter.changed(Gtk.SorterChange.DIFFERENT)
+            self.game.developer = self.developer
 
 
 def play(game: Game):
@@ -113,6 +111,9 @@ def play(game: Game):
     except OSError:
         _window().send_toast(_("Couldn’t launch {}").format(game.name))
         return
+
+    game.last_played = int(time.time())
+    sorter.changed(Gtk.SorterChange.DIFFERENT)
 
     if not SETTINGS.get_boolean("quit-on-launch"):
         return
@@ -158,15 +159,6 @@ def unhide(game: Game):
     )
 
 
-def remove(game: Game):
-    """Remove `game` and notify the user with a toast."""
-    game.removed = True
-    _window().send_toast(
-        _("{} removed").format(game.name),
-        undo=lambda: setattr(game, "removed", False),
-    )
-
-
 def _window() -> "Window":
     app = cast(Gtk.Application, Gio.Application.get_default())
     return cast("Window", app.props.active_window)
@@ -190,12 +182,6 @@ def _name_cmp(a: str, b: str) -> int:
 
 
 filter_ = Gtk.EveryFilter()
-filter_.append(
-    Gtk.BoolFilter(
-        expression=Gtk.PropertyExpression.new(Game, None, "removed"),
-        invert=True,
-    )
-)
 filter_.append(
     Gtk.BoolFilter(
         expression=Gtk.PropertyExpression.new(Game, None, "blacklisted"),

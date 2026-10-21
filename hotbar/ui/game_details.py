@@ -62,12 +62,11 @@ class GameDetails(Adw.NavigationPage):
 
         self.insert_action_group("game", self.game_actions)
 
-        for name in "hidden", "removed":
-            self.game_signals.connect_closure(
-                f"notify::{name}",
-                lambda *_: self.activate_action("navigation.pop"),
-                after=False,
-            )
+        self.game_signals.connect_closure(
+            "notify::hidden",
+            lambda *_: self.activate_action("navigation.pop"),
+            after=False,
+        )
 
     def add(self):
         """Add a new game."""

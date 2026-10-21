@@ -4,8 +4,10 @@
 # SPDX-FileCopyrightText: Copyright 2025 Jamie Gravendeel
 
 import json
+import logging
 import os
 import subprocess
+from contextlib import suppress
 from pathlib import Path
 from shlex import quote
 from types import UnionType
@@ -16,6 +18,8 @@ from gi.repository import Gdk, Gio, GObject
 from . import DATA_DIR
 
 GAMES_DIR = DATA_DIR / "games"
+
+_logger = logging.getLogger(__name__)
 
 
 class _GameProp(NamedTuple):
@@ -34,12 +38,14 @@ PROPERTIES: tuple[_GameProp, ...] = (
     _GameProp("last_played", int),
     _GameProp("name", str, required=True, editable=True),
     _GameProp("developer", str, editable=True),
-    _GameProp("removed", bool),
     _GameProp("blacklisted", bool),
-    _GameProp("version", float),
+    _GameProp("version", int),
 )
 
-_SPEC_VERSION = 2.0
+_SPEC_VERSION = 1
+
+# Properties the user can change, saved to disk as soon as they change
+_USER_PROPS = ("hidden", "last_played", "name", "developer", "executable")
 
 
 class Game(Gio.SimpleActionGroup):
@@ -55,11 +61,14 @@ class Game(Gio.SimpleActionGroup):
     last_played = GObject.Property(type=int)
     name = GObject.Property(type=str)
     developer = GObject.Property(type=str)
-    removed = GObject.Property(type=bool, default=False)
     blacklisted = GObject.Property(type=bool, default=False)
-    version = GObject.Property(type=float, default=_SPEC_VERSION)
+    version = GObject.Property(type=int, default=_SPEC_VERSION)
 
     cover = GObject.Property(type=Gdk.Paintable)
+
+    # The source's own values, so only the user's changes get saved.
+    _source_values: dict[str, Any] | None = None
+    _saved: dict[str, Any] | None = None
 
     @classmethod
     def from_data(cls, data: dict[str, Any]) -> Self:
@@ -85,6 +94,9 @@ class Game(Gio.SimpleActionGroup):
 
             setattr(game, prop.name, value)
 
+        # The data came from disk, so saving it unchanged can be skipped
+        game._saved = data
+
         return game
 
     def play(self):
@@ -97,14 +109,92 @@ class Game(Gio.SimpleActionGroup):
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0,
         )
 
-    def save(self):
-        """Save the game's properties to disk."""
-        properties = {prop.name: getattr(self, prop.name) for prop in PROPERTIES}
+    def apply_saved(self):
+        """Apply the user's saved changes, if any, over the data from the source."""
+        # Remember the source's values, so only the user's changes get saved
+        self._source_values = {}
+        for name in _USER_PROPS:
+            self._source_values[name] = getattr(self, name)
 
-        GAMES_DIR.mkdir(parents=True, exist_ok=True)
+        try:
+            with Path(f"{GAMES_DIR / self.game_id}.json").open(encoding="utf-8") as f:
+                saved = json.load(f)
+        except (OSError, ValueError):
+            return
+
+        if not isinstance(saved, dict):
+            return
+
+        version = saved.get("version")
+        if not isinstance(version, int) or version > _SPEC_VERSION:
+            return
+
+        for prop in PROPERTIES:
+            if prop.name not in (*_USER_PROPS, "added"):
+                continue
+            if prop.name not in saved:
+                continue
+
+            value = saved[prop.name]
+            if not isinstance(value, prop.type_):
+                continue
+
+            if prop.name == "executable" and isinstance(value, list):
+                value = " ".join(value)
+            if prop.name == "last_played":
+                value = max(value, self.last_played)
+
+            setattr(self, prop.name, value)
+
+        self._saved = saved
+
+    def save_on_change(self):
+        """Save whenever the user changes the game. Call once it's fully loaded."""
+        self.connect("notify", Game._on_notify)
+
+    def _on_notify(self, pspec: GObject.ParamSpec):
+        if pspec.name.replace("-", "_") in _USER_PROPS:
+            self.save()
+
+    def save(self):
+        """Save the user's changes to disk, or everything for imported games."""
+        if self._source_values is None:
+            data = {prop.name: getattr(self, prop.name) for prop in PROPERTIES}
+        else:
+            data = {}
+            for name, value in self._source_values.items():
+                if getattr(self, name) != value:
+                    data[name] = getattr(self, name)
+
+            data["game_id"] = self.game_id
+            data["source"] = self.source
+            data["added"] = self.added
+
+        data["version"] = _SPEC_VERSION
+
+        # Setting a property to its current value still notifies, so skip no-ops
+        if data == self._saved:
+            return
+
         path = Path(f"{GAMES_DIR / self.game_id}.json")
-        with path.open("w", encoding="utf-8") as f:
-            json.dump(properties, f, indent=4, sort_keys=True)
+        tmp = path.with_name(f"{path.name}.tmp")
+
+        # Write to a temporary file and swap it in, so a crash can't corrupt the game
+        try:
+            GAMES_DIR.mkdir(parents=True, exist_ok=True)
+            with tmp.open("w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, sort_keys=True)
+                f.flush()
+                os.fsync(f.fileno())
+            tmp.replace(path)
+        except OSError:
+            # Log error and remove tmp file
+            _logger.exception("Couldn't save %s", self.game_id)
+            with suppress(OSError):
+                tmp.unlink(missing_ok=True)
+            return
+
+        self._saved = data
 
 
 def format_executable(executable: str) -> str:
