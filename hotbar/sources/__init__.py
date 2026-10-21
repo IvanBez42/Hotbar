@@ -15,7 +15,7 @@ from typing import Final, Protocol, cast
 
 from gi.repository import Gio, GLib, GObject
 
-from hotbar.games import Game
+from hotbar.games import GAMES_DIR, Game
 
 from . import imported
 
@@ -121,11 +121,17 @@ class Source(GObject.Object, Gio.ListModel[Game]):
             game.added = game.added or added
             if self.id != imported.ID:
                 game.apply_saved()
+                # Delay initial save
+                GLib.idle_add(game.save)
             yield game
 
 
 def load():
     """Populate `sources.model`."""
+    # Clear unsuccessful writes
+    for tmp in GAMES_DIR.glob("*.tmp"):
+        tmp.unlink(missing_ok=True)
+
     model.splice(0, 0, tuple(_get_sources()))
 
 

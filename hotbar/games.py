@@ -4,8 +4,10 @@
 # SPDX-FileCopyrightText: Copyright 2025 Jamie Gravendeel
 
 import json
+import logging
 import os
 import subprocess
+from contextlib import suppress
 from pathlib import Path
 from shlex import quote
 from types import UnionType
@@ -16,6 +18,8 @@ from gi.repository import Gdk, Gio, GObject
 from . import DATA_DIR
 
 GAMES_DIR = DATA_DIR / "games"
+
+_logger = logging.getLogger(__name__)
 
 
 class _GameProp(NamedTuple):
@@ -172,16 +176,23 @@ class Game(Gio.SimpleActionGroup):
         if data == self._saved:
             return
 
-        GAMES_DIR.mkdir(parents=True, exist_ok=True)
         path = Path(f"{GAMES_DIR / self.game_id}.json")
+        tmp = path.with_name(f"{path.name}.tmp")
 
         # Write to a temporary file and swap it in, so a crash can't corrupt the game
-        tmp = path.with_name(f"{path.name}.tmp")
-        with tmp.open("w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, sort_keys=True)
-            f.flush()
-            os.fsync(f.fileno())
-        tmp.replace(path)
+        try:
+            GAMES_DIR.mkdir(parents=True, exist_ok=True)
+            with tmp.open("w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, sort_keys=True)
+                f.flush()
+                os.fsync(f.fileno())
+            tmp.replace(path)
+        except OSError:
+            # Log error and remove tmp file
+            _logger.exception("Couldn't save %s", self.game_id)
+            with suppress(OSError):
+                tmp.unlink(missing_ok=True)
+            return
 
         self._saved = data
 
