@@ -9,10 +9,12 @@ site_url=${SITE_URL:-https://ivanbez42.github.io/Hotbar}
 repo=$site/repo
 app_id=io.github.IvanBez42.Hotbar
 
-# First release, create the repo structure and config file
-if [ ! -d "$repo" ]; then
-    mkdir -p "$repo/objects" "$repo/refs/heads" "$repo/refs/mirrors" \
-        "$repo/refs/remotes" "$repo/extensions" "$repo/state" "$repo/tmp"
+# Git drops empty directories, so recreate the repo layout on every run
+mkdir -p "$repo/objects" "$repo/refs/heads" "$repo/refs/mirrors" \
+    "$repo/refs/remotes" "$repo/extensions" "$repo/state" "$repo/tmp"
+
+# First release, create the config file
+if [ ! -f "$repo/config" ]; then
     printf '[core]\nrepo_version=1\nmode=archive-z2\n' >"$repo/config"
 fi
 
