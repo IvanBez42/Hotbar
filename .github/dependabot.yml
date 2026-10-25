@@ -1,15 +1,15 @@
 version: 2
 updates:
-  # Monthly PRs to dev that bump the dev tools pinned in uv.lock
+  # Weekly PRs to dev that bump the dev tools pinned in uv.lock
   - package-ecosystem: "uv"
     directory: "/"
     target-branch: "dev"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
 
-  # Monthly PRs to dev that bump the pinned GitHub Actions
+  # Weekly PRs to dev that bump the pinned GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "dev"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
