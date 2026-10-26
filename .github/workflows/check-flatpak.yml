@@ -21,7 +21,7 @@ jobs:
           ref: dev
 
       - name: Check for updates
-        uses: docker://ghcr.io/flathub/flatpak-external-data-checker:latest
+        uses: docker://ghcr.io/flathub/flatpak-external-data-checker@sha256:58cbad601261c2ebaae2e18b6f639c09aa5809ef941dcff7284f68928ebb790d # latest on 2026-10-26
         env:
           GIT_AUTHOR_NAME: github-actions[bot]
           GIT_COMMITTER_NAME: github-actions[bot]
