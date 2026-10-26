@@ -8,7 +8,12 @@
         {
             "type": "file",
             "url": "https://files.pythonhosted.org/packages/ce/a4/9cc30690a394a8305e8be4c9036aa16d0dfddadd09079860b582f562496d/pillow-13.0.0.tar.gz",
-            "sha256": "cdcd1ba258178f7356d74170c9a81ba4eab6a5d55748bc402a5a2a6fe6be3510"
+            "sha256": "cdcd1ba258178f7356d74170c9a81ba4eab6a5d55748bc402a5a2a6fe6be3510",
+            "x-checker-data": {
+                "type": "pypi",
+                "name": "pillow"
+            }
         }
-    ]
+    ],
+    "modules": ["python3-pybind11.json"]
 }
