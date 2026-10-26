@@ -63,13 +63,18 @@
   </branding>
 
   <releases>
+    <release version="0.2.1" date="2026-10-26">
+      <description>
+        <p>Security patch and milestones on Github</p>
+      </description>
+    </release>
     <release version="0.2.0" date="2026-10-21">
       <description>
         <p>Major saving overhaul:</p>
         <ul>
           <li>Custom and altered games are now saved</li>
           <li>Game add date is accurate, allowing better sorting</li>
-          <li>Remove button has been removed (0.2.1 will add better actions)</li>
+          <li>Remove button has been removed (a milestone will add better actions)</li>
           <li>Now version 1 of the save format</li>
         </ul>
       </description>

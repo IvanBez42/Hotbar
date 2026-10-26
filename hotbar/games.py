@@ -112,9 +112,7 @@ class Game(Gio.SimpleActionGroup):
     def apply_saved(self):
         """Apply the user's saved changes, if any, over the data from the source."""
         # Remember the source's values, so only the user's changes get saved
-        self._source_values = {}
-        for name in _USER_PROPS:
-            self._source_values[name] = getattr(self, name)
+        self._source_values = {name: getattr(self, name) for name in _USER_PROPS}
 
         try:
             with Path(f"{GAMES_DIR / self.game_id}.json").open(encoding="utf-8") as f:
@@ -122,22 +120,22 @@ class Game(Gio.SimpleActionGroup):
         except (OSError, ValueError):
             return
 
-        if not isinstance(saved, dict):
-            return
-
-        version = saved.get("version")
-        if not isinstance(version, int) or version > _SPEC_VERSION:
+        if (
+            not isinstance(saved, dict)
+            or not isinstance(saved.get("version"), int)
+            or saved["version"] > _SPEC_VERSION
+        ):
             return
 
         for prop in PROPERTIES:
-            if prop.name not in (*_USER_PROPS, "added"):
-                continue
-            if prop.name not in saved:
+            if (
+                prop.name not in (*_USER_PROPS, "added")
+                or prop.name not in saved
+                or not isinstance(saved[prop.name], prop.type_)
+            ):
                 continue
 
             value = saved[prop.name]
-            if not isinstance(value, prop.type_):
-                continue
 
             if prop.name == "executable" and isinstance(value, list):
                 value = " ".join(value)
