@@ -4,6 +4,7 @@
 </div>
 
 [![Latest release](https://img.shields.io/github/v/release/IvanBez42/Hotbar)](https://github.com/IvanBez42/Hotbar/releases/latest)
+[![Open milestones](https://img.shields.io/github/milestones/open/IvanBez42/Hotbar)](https://github.com/IvanBez42/Hotbar/milestones)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=IvanBez42_Hotbar&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=IvanBez42_Hotbar)
