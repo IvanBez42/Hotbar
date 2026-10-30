@@ -69,6 +69,7 @@ class Game(Gio.SimpleActionGroup):
     # The source's own values, so only the user's changes get saved.
     _source_values: dict[str, Any] | None = None
     _saved: dict[str, Any] | None = None
+    _save_handler = 0
 
     @classmethod
     def from_data(cls, data: dict[str, Any]) -> Self:
@@ -148,7 +149,9 @@ class Game(Gio.SimpleActionGroup):
 
     def save_on_change(self):
         """Save whenever the user changes the game. Call once it's fully loaded."""
-        self.connect("notify", Game._on_notify)
+        # Never need more than one save handler (e.g. readding game)
+        if not self._save_handler:
+            self._save_handler = self.connect("notify", Game._on_notify)
 
     def _on_notify(self, pspec: GObject.ParamSpec):
         if pspec.name.replace("-", "_") in _USER_PROPS:

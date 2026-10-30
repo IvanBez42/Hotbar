@@ -46,6 +46,7 @@ class GameActions(Gio.SimpleActionGroup):
             ("play", lambda *_: play(self.game)),
             ("hide", lambda *_: hide(self.game)),
             ("unhide", lambda *_: unhide(self.game)),
+            ("delete", lambda *_: delete(self.game)),
         ))
 
         game = Gtk.PropertyExpression.new(GameActions, None, "game")
@@ -157,6 +158,25 @@ def unhide(game: Game):
         _("{} unhidden").format(game.name),
         undo=lambda: setattr(game, "hidden", True),
     )
+
+
+def delete(game: Game):
+    """Delete a manually added `game` and notify the user with a toast."""
+    window = _window()
+    try:
+        imported.delete(game)
+    except OSError:
+        window.send_toast(_("Couldn't delete {}").format(game.name))
+        return
+
+    sources.get(imported.ID).remove(game)
+    window.navigation_view.pop()
+    window.send_toast(_("{} deleted").format(game.name), undo=lambda: _restore(game))
+
+
+def _restore(game: Game):
+    sources.get(imported.ID).append(game)
+    game.save()
 
 
 def _window() -> "Window":

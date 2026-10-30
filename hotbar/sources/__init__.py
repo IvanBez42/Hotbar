@@ -116,6 +116,12 @@ class Source(GObject.Object, Gio.ListModel[Game]):
         game.save_on_change()
         self.items_changed(pos, 0, 1)
 
+    def remove(self, game: Game):
+        """Remove `game` from `self`."""
+        pos = self._games.index(game)
+        del self._games[pos]
+        self.items_changed(pos, 1, 0)
+
     def _get_games(self, added: int) -> Generator[Game]:
         for game in self._module.get_games():
             game.added = game.added or added
