@@ -47,6 +47,7 @@ class GameActions(Gio.SimpleActionGroup):
             ("hide", lambda *_: hide(self.game)),
             ("unhide", lambda *_: unhide(self.game)),
             ("delete", lambda *_: delete(self.game)),
+            ("reset", lambda *_: None),
         ))
 
         game = Gtk.PropertyExpression.new(GameActions, None, "game")
@@ -64,6 +65,10 @@ class GameActions(Gio.SimpleActionGroup):
         has_game.bind(play_action, "enabled", self)
         Gtk.TryExpression.new((hidden, false)).bind(unhide_action, "enabled", self)
         Gtk.TryExpression.new((not_hidden, false)).bind(hide_action, "enabled", self)
+
+        modified = Gtk.PropertyExpression.new(Game, game, "modified")
+        reset_action = cast(Gio.SimpleAction, self.lookup_action("reset"))
+        Gtk.TryExpression.new((modified, false)).bind(reset_action, "enabled", self)
 
 
 class GameEditable(GObject.Object):

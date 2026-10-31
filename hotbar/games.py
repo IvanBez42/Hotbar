@@ -62,6 +62,7 @@ class Game(Gio.SimpleActionGroup):
     name = GObject.Property(type=str)
     developer = GObject.Property(type=str)
     blacklisted = GObject.Property(type=bool, default=False)
+    modified = GObject.Property(type=bool, default=False)
     version = GObject.Property(type=int, default=_SPEC_VERSION)
 
     cover = GObject.Property(type=Gdk.Paintable)
@@ -157,8 +158,20 @@ class Game(Gio.SimpleActionGroup):
         if pspec.name.replace("-", "_") in _USER_PROPS:
             self.save()
 
+    def _update_modified(self):
+        if self._source_values is None:
+            return
+
+        self.modified = any(
+            (getattr(self, prop.name) or "") != (self._source_values[prop.name] or "")
+            for prop in PROPERTIES
+            if prop.editable
+        )
+
     def save(self):
         """Save the user's changes to disk, or everything for imported games."""
+        self._update_modified()
+
         if self._source_values is None:
             data = {prop.name: getattr(self, prop.name) for prop in PROPERTIES}
         else:
