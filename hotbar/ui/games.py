@@ -47,7 +47,7 @@ class GameActions(Gio.SimpleActionGroup):
             ("hide", lambda *_: hide(self.game)),
             ("unhide", lambda *_: unhide(self.game)),
             ("delete", lambda *_: delete(self.game)),
-            ("reset", lambda *_: None),
+            ("reset", lambda *_: reset(self.game)),
         ))
 
         game = Gtk.PropertyExpression.new(GameActions, None, "game")
@@ -163,6 +163,12 @@ def unhide(game: Game):
         _("{} unhidden").format(game.name),
         undo=lambda: setattr(game, "hidden", True),
     )
+
+
+def reset(game: Game):
+    """Restore the game back to its source."""
+    game.reset()
+    sorter.changed(Gtk.SorterChange.DIFFERENT)
 
 
 def delete(game: Game):

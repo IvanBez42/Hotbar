@@ -111,6 +111,17 @@ class Game(Gio.SimpleActionGroup):
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0,
         )
 
+    def reset(self):
+        """Restore to the source original values."""
+        if self._source_values is None:
+            return
+
+        # freeze notify and update in one go. 
+        with self.freeze_notify():
+            for prop in PROPERTIES:
+                if prop.editable:
+                    setattr(self, prop.name, self._source_values[prop.name])
+
     def apply_saved(self):
         """Apply the user's saved changes, if any, over the data from the source."""
         # Remember the source's values, so only the user's changes get saved
