@@ -13,6 +13,7 @@ from gi.repository import Adw, Gdk, Gio, GObject, Gtk
 
 from hotbar.config import PREFIX
 from hotbar.games import Game
+from hotbar.sources import imported
 
 from . import closures
 from .cover import Cover  # noqa: F401
@@ -102,6 +103,16 @@ class GameDetails(Adw.NavigationPage):
                 return renderer.render_texture(node)
 
         return None
+
+    @Gtk.Template.Callback()
+    @staticmethod
+    def _is_custom(_this, game: Game | None) -> bool:
+        return game is not None and game.source == imported.ID
+
+    @Gtk.Template.Callback()
+    @staticmethod
+    def _is_from_launcher(_this, game: Game | None) -> bool:
+        return game is not None and game.source != imported.ID
 
     @Gtk.Template.Callback()
     @staticmethod

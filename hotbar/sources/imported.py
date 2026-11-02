@@ -42,6 +42,15 @@ def new() -> Game:
     return Game(game_id=f"{ID}_{number}", source=ID, added=int(time.time()))
 
 
+def delete(game: Game):
+    """Delete a manually added game and its cover from disk."""
+    Path(f"{GAMES_DIR / game.game_id}.json").unlink(missing_ok=True)
+    for suffix in (".gif", ".tiff"):
+        Path(f"{COVERS_DIR / game.game_id}{suffix}").unlink(missing_ok=True)
+
+    game._saved = None
+
+
 def get_paths() -> Generator[Path]:
     """Get the paths of all imported games on disk."""
     yield from GAMES_DIR.glob("imported_*.json")

@@ -46,6 +46,8 @@ class GameActions(Gio.SimpleActionGroup):
             ("play", lambda *_: play(self.game)),
             ("hide", lambda *_: hide(self.game)),
             ("unhide", lambda *_: unhide(self.game)),
+            ("delete", lambda *_: delete(self.game)),
+            ("reset", lambda *_: reset(self.game)),
         ))
 
         game = Gtk.PropertyExpression.new(GameActions, None, "game")
@@ -63,6 +65,10 @@ class GameActions(Gio.SimpleActionGroup):
         has_game.bind(play_action, "enabled", self)
         Gtk.TryExpression.new((hidden, false)).bind(unhide_action, "enabled", self)
         Gtk.TryExpression.new((not_hidden, false)).bind(hide_action, "enabled", self)
+
+        modified = Gtk.PropertyExpression.new(Game, game, "modified")
+        reset_action = cast(Gio.SimpleAction, self.lookup_action("reset"))
+        Gtk.TryExpression.new((modified, false)).bind(reset_action, "enabled", self)
 
 
 class GameEditable(GObject.Object):
@@ -157,6 +163,31 @@ def unhide(game: Game):
         _("{} unhidden").format(game.name),
         undo=lambda: setattr(game, "hidden", True),
     )
+
+
+def reset(game: Game):
+    """Restore the game back to its source."""
+    game.reset()
+    sorter.changed(Gtk.SorterChange.DIFFERENT)
+
+
+def delete(game: Game):
+    """Delete a manually added `game` and notify the user with a toast."""
+    window = _window()
+    try:
+        imported.delete(game)
+    except OSError:
+        window.send_toast(_("Couldn't delete {}").format(game.name))
+        return
+
+    sources.get(imported.ID).remove(game)
+    window.navigation_view.pop()
+    window.send_toast(_("{} deleted").format(game.name), undo=lambda: _restore(game))
+
+
+def _restore(game: Game):
+    sources.get(imported.ID).append(game)
+    game.save()
 
 
 def _window() -> "Window":

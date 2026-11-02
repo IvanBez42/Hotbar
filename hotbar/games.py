@@ -62,6 +62,7 @@ class Game(Gio.SimpleActionGroup):
     name = GObject.Property(type=str)
     developer = GObject.Property(type=str)
     blacklisted = GObject.Property(type=bool, default=False)
+    modified = GObject.Property(type=bool, default=False)
     version = GObject.Property(type=int, default=_SPEC_VERSION)
 
     cover = GObject.Property(type=Gdk.Paintable)
@@ -69,6 +70,7 @@ class Game(Gio.SimpleActionGroup):
     # The source's own values, so only the user's changes get saved.
     _source_values: dict[str, Any] | None = None
     _saved: dict[str, Any] | None = None
+    _save_handler = 0
 
     @classmethod
     def from_data(cls, data: dict[str, Any]) -> Self:
@@ -109,6 +111,17 @@ class Game(Gio.SimpleActionGroup):
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0,
         )
 
+    def reset(self):
+        """Restore to the source original values."""
+        if self._source_values is None:
+            return
+
+        # freeze notify and update in one go. 
+        with self.freeze_notify():
+            for prop in PROPERTIES:
+                if prop.editable:
+                    setattr(self, prop.name, self._source_values[prop.name])
+
     def apply_saved(self):
         """Apply the user's saved changes, if any, over the data from the source."""
         # Remember the source's values, so only the user's changes get saved
@@ -148,14 +161,28 @@ class Game(Gio.SimpleActionGroup):
 
     def save_on_change(self):
         """Save whenever the user changes the game. Call once it's fully loaded."""
-        self.connect("notify", Game._on_notify)
+        # Never need more than one save handler (e.g. readding game)
+        if not self._save_handler:
+            self._save_handler = self.connect("notify", Game._on_notify)
 
     def _on_notify(self, pspec: GObject.ParamSpec):
         if pspec.name.replace("-", "_") in _USER_PROPS:
             self.save()
 
+    def _update_modified(self):
+        if self._source_values is None:
+            return
+
+        self.modified = any(
+            (getattr(self, prop.name) or "") != (self._source_values[prop.name] or "")
+            for prop in PROPERTIES
+            if prop.editable
+        )
+
     def save(self):
         """Save the user's changes to disk, or everything for imported games."""
+        self._update_modified()
+
         if self._source_values is None:
             data = {prop.name: getattr(self, prop.name) for prop in PROPERTIES}
         else:

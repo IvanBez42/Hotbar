@@ -209,6 +209,30 @@ template $GameDetails: Adw.NavigationPage {
                         ]
                       }
 
+                      Button delete_button {
+                        visible: bind $_is_custom(template.game) as <bool>;
+                        action-name: "game.delete";
+                        icon-name: "user-trash-symbolic";
+                        tooltip-text: _("Delete");
+                        valign: center;
+
+                        styles [
+                          "circular",
+                        ]
+                      }
+
+                      Button {
+                        visible: bind $_is_from_launcher(template.game) as <bool>;
+                        action-name: "game.reset";
+                        icon-name: "edit-undo-symbolic";
+                        tooltip-text: _("Reset");
+                        valign: center;
+
+                        styles [
+                          "circular",
+                        ]
+                      }
+
                       MenuButton {
                         icon-name: "edit-find-symbolic";
                         tooltip-text: _("Search On");
