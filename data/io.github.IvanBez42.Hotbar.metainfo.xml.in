@@ -63,6 +63,15 @@
   </branding>
 
   <releases>
+    <release version="0.2.2" date="2026-11-02">
+      <description>
+        <p>Remove and Reset Buttons:</p>
+        <ul>
+          <li>Added a remove button for custom games</li>
+          <li>Added a reset button to restore an imported game to its defaults</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.1" date="2026-10-26">
       <description>
         <p>Security patch and milestones on Github</p>
