@@ -136,7 +136,7 @@ def get_games() -> Generator[Game]:
 
         appids.add(appid)
         yield Game(
-            executable=f"{OPEN} steam://rungameid/{appid}",
+            executable=f"{_launcher()} steam://rungameid/{appid}",
             game_id=f"{ID}_{appid}",
             source=ID,
             last_played=int(lastplayed) if lastplayed and lastplayed.isdigit() else 0,
@@ -152,6 +152,14 @@ def _data_dir() -> Path:
             return path
 
     raise FileNotFoundError
+
+
+def _launcher() -> str:
+    """Add silent flag to Steam"""
+    if _data_dir() == FLATPAK / "com.valvesoftware.Steam" / "data" / "Steam":
+        return "flatpak run com.valvesoftware.Steam -silent"
+
+    return OPEN
 
 
 def _library_folders() -> Generator[Path]:
