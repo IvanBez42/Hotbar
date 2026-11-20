@@ -42,6 +42,10 @@
       <image>https://raw.githubusercontent.com/IvanBez42/Hotbar/v0.1.0/data/screenshots/GameEdit.png</image>
       <caption>Edit any game's details</caption>
     </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/IvanBez42/Hotbar/main/data/screenshots/Reset.png</image>
+      <caption>Reset a game back to its original details</caption>
+    </screenshot>
   </screenshots>
 
   <translation type="gettext">hotbar</translation>
