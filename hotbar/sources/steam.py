@@ -19,7 +19,7 @@ from gi.repository import Gdk
 from hotbar import cover
 from hotbar.games import Game
 
-from . import APPLICATION_SUPPORT, DATA, FLATPAK, OPEN, PROGRAM_FILES_X86
+from . import APPLICATION_SUPPORT, DATA, FLATPAK, PROGRAM_FILES_X86
 
 ID, NAME = "steam", _("Steam")
 
@@ -159,7 +159,7 @@ def _launcher() -> str:
     if _data_dir() == FLATPAK / "com.valvesoftware.Steam" / "data" / "Steam":
         return "flatpak run com.valvesoftware.Steam -silent"
 
-    return OPEN
+    return "steam -silent"
 
 
 def _library_folders() -> Generator[Path]:
