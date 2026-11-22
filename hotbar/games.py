@@ -235,6 +235,18 @@ def format_executable(executable: str) -> str:
             continue
         env_args.append(quote(f"--env={var}={value}"))
 
-    return " ".join(
-        ("flatpak-spawn", "--host", *env_args, "/bin/sh", "-c", quote(executable))
-    )
+    session_env = ""
+    for var in ("DISPLAY", "XAUTHORITY"):
+        is_set = f'[ -n "${var}" ]'
+        lookup = f'systemctl --user show-environment 2>/dev/null | sed -n "s/^{var}=//p"'
+        # Use set otherwise lookup and set it
+        session_env += f'{is_set} || export {var}="$({lookup})"\n'
+
+    return " ".join((
+        "flatpak-spawn",
+        "--host",
+        *env_args,
+        "/bin/sh",
+        "-c",
+        quote(session_env + executable),
+    ))

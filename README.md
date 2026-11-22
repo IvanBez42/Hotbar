@@ -27,6 +27,7 @@ You can also add your own games, hide the ones you don't want to see, and look a
 
 ![Games filtered by source in the sidebar](data/screenshots/Library.png)
 ![Editing a game's details](data/screenshots/GameEdit.png)
+![Resetting a game's details](data/screenshots/Reset.png)
 
 </details>
 
