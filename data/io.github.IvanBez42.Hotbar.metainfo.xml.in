@@ -67,6 +67,13 @@
   </branding>
 
   <releases>
+    <release version="0.2.3" date="2026-11-22">
+      <description>
+        <p>Better Steam launcher:</p>
+          <li>Steam better handles environmental variables</li>
+          <li>Silent Steam launching</li>
+      </description>
+    </release>
     <release version="0.2.2" date="2026-11-02">
       <description>
         <p>Remove and Reset Buttons:</p>
