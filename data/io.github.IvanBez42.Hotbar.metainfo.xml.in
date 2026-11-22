@@ -70,8 +70,10 @@
     <release version="0.2.3" date="2026-11-22">
       <description>
         <p>Better Steam launcher:</p>
+        <ul>
           <li>Steam better handles environmental variables</li>
           <li>Silent Steam launching</li>
+        </ul>
       </description>
     </release>
     <release version="0.2.2" date="2026-11-02">
