@@ -73,7 +73,7 @@
         <ul>
           <li>Steam better handles environmental variables</li>
           <li>Silent Steam launching</li>
-        <ul>
+        </ul>
       </description>
     </release>
     <release version="0.2.2" date="2026-11-02">
